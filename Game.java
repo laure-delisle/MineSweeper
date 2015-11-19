@@ -46,6 +46,7 @@ public class Game
 		{
 			displayGrid();
 			System.out.println("x="+x+" y="+y);
+			System.out.println("There are "+coveredNonminedCellNumber+" non-mined cell(s) remaining to be discovered");
 			System.out.println("Please choose a cell to uncover [lin col] : ");
 			x = getInt("", 0, height-1);
 			y = getInt("", 0, width-1);
@@ -142,41 +143,118 @@ public class Game
 
 	private void step()
 	{
-		if (MINE_CELL == grid[x][y])
+		if (UNKNOWN_CELL == grid[x][y])
+		{
+			grid[x][y] = countNeighbors(x,y);
+			//one non-mined cell less to discover
+			coveredNonminedCellNumber--;
+		}
+		//no neighbor : let's discover adjacent no-neighbor cells  !
+		if (EMPTY_CELL == grid[x][y])
+		{
+			discoverEmptyCells(x,y);
+		}
+		else if (MINE_CELL == grid[x][y])
 		{
 			isTheEnd = true;
 			displayGrid();
 			System.out.println("There was a mine at ["+x+","+y+"]...\nYou loose !");
 		}
-		else if (UNKNOWN_CELL == grid[x][y])
+		//no more unknown cell to discover = win !
+		if (0 == coveredNonminedCellNumber)
 		{
-			grid[x][y] = countNeighbors();
+			isTheEnd = true;
+			displayGrid();
+			System.out.println("You avoided bravely every mine...\nYou win !");
 		}
 	}
 
-	private int countNeighbors()
+	private int countNeighbors(int lin, int col)
 	{
 		int neighbors = 0;
 
-		if (x>0)
+		if (lin>0)
 		{
-			System.out.println("a");
-			if (y>0 && MINE_CELL==grid[x-1][y-1]) neighbors++;
-			if (MINE_CELL==grid[x-1][y]) neighbors++;
-			if (y<width-1 && MINE_CELL==grid[x-1][y+1]) neighbors++;
+			if (col>0 && MINE_CELL==grid[lin-1][col-1]) neighbors++;
+			if (MINE_CELL==grid[lin-1][col]) neighbors++;
+			if (col<width-1 && MINE_CELL==grid[lin-1][col+1]) neighbors++;
 		}
-		System.out.println("b");
-		if (y>0 && MINE_CELL==grid[x][y-1]) neighbors++;
-		if (y<width-1 && MINE_CELL==grid[x][y+1]) neighbors++;
-		if (x<height-1)
+		if (col>0 && MINE_CELL==grid[lin][col-1]) neighbors++;
+		if (col<width-1 && MINE_CELL==grid[lin][col+1]) neighbors++;
+		if (lin<height-1)
 		{
-			System.out.println("c");
-			if (y>0 && MINE_CELL==grid[x+1][y-1]) neighbors++;
-			if (MINE_CELL==grid[x+1][y]) neighbors++;
-			if (y<width-1 && MINE_CELL==grid[x+1][y+1]) neighbors++;
+			if (col>0 && MINE_CELL==grid[lin+1][col-1]) neighbors++;
+			if (MINE_CELL==grid[lin+1][col]) neighbors++;
+			if (col<width-1 && MINE_CELL==grid[lin+1][col+1]) neighbors++;
 		}
 
 		return(neighbors);
+	}
+
+	private void discoverEmptyCells(int lin, int col)
+	{
+		if (lin>0)
+		{
+			if (col>0 && UNKNOWN_CELL==grid[lin-1][col-1])
+			{
+				grid[lin-1][col-1] = countNeighbors(lin-1,col-1);
+				coveredNonminedCellNumber--;
+				if (EMPTY_CELL==grid[lin-1][col-1])
+					discoverEmptyCells(lin-1,col-1);
+			}
+			if (UNKNOWN_CELL==grid[lin-1][col])
+			{
+				grid[lin-1][col] = countNeighbors(lin-1,col);
+				coveredNonminedCellNumber--;
+				if (EMPTY_CELL==grid[lin-1][col])
+					discoverEmptyCells(lin-1,col);
+			}
+			if (col<width-1 && UNKNOWN_CELL==grid[lin-1][col+1])
+			{
+				grid[lin-1][col+1] = countNeighbors(lin-1,col+1);
+				coveredNonminedCellNumber--;
+				if (EMPTY_CELL==grid[lin-1][col+1])
+					discoverEmptyCells(lin-1,col+1);
+			}
+		}
+		if (col>0 && UNKNOWN_CELL==grid[lin][col-1])
+		{
+			grid[lin][col-1] = countNeighbors(lin,col-1);
+			coveredNonminedCellNumber--;
+			if (EMPTY_CELL==grid[lin][col-1])
+				discoverEmptyCells(lin,col-1);
+		}
+		if (col<width-1 && UNKNOWN_CELL==grid[lin][col+1])
+		{
+			grid[lin][col+1] = countNeighbors(lin,col+1);
+			coveredNonminedCellNumber--;
+			if (EMPTY_CELL==grid[lin][col+1])
+				discoverEmptyCells(lin,col+1);
+		}
+		if (lin<height-1)
+		{
+			if (col>0 && UNKNOWN_CELL==grid[lin+1][col-1])
+			{
+				grid[lin+1][col-1] = countNeighbors(lin+1,col-1);
+				coveredNonminedCellNumber--;
+				if (EMPTY_CELL==grid[lin+1][col-1])
+					discoverEmptyCells(lin+1,col-1);
+			}
+			if (UNKNOWN_CELL==grid[lin+1][col])
+			{
+				grid[lin+1][col] = countNeighbors(lin+1,col);
+				coveredNonminedCellNumber--;
+				if (EMPTY_CELL==grid[lin+1][col])
+					discoverEmptyCells(lin+1,col);
+			}
+			if (col<width-1 && UNKNOWN_CELL==grid[lin+1][col+1])
+			{
+				grid[lin+1][col+1] = countNeighbors(lin+1,col+1);
+				coveredNonminedCellNumber--;
+				if (EMPTY_CELL==grid[lin+1][col+1])
+					discoverEmptyCells(lin+1,col+1);
+			}
+		}
 	}
 
 }
