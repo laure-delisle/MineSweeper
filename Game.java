@@ -27,11 +27,11 @@ public class Game
 		isTheEnd = false;
 
 		//get width, height and number of mines from user through console
-		width = getInt("Width 0<...<=50 : ",50);
-		height = getInt("Height 0<...<=20 : ",20);
+		width = getInt("Width 1<=...<=50 : ",1,50);
+		height = getInt("Height 1<=...<=20 : ",1,20);
 		totalCellNumber = width*height;
 		do
-			mineNumber = getInt("Number of mines 0<...<"+totalCellNumber+" : ",totalCellNumber);
+			mineNumber = getInt("Number of mines 0<...<"+totalCellNumber+" : ",1,totalCellNumber);
 		while (totalCellNumber <= mineNumber);
 
 		//compute the number of non-mined cells
@@ -45,9 +45,10 @@ public class Game
 		while (false == isTheEnd)
 		{
 			displayGrid();
+			System.out.println("x="+x+" y="+y);
 			System.out.println("Please choose a cell to uncover [lin col] : ");
-			x = getInt("", height-1);
-			y = getInt("", width-1);
+			x = getInt("", 0, height-1);
+			y = getInt("", 0, width-1);
 			step();
 		}
 		System.out.println("Game is over.");
@@ -59,11 +60,11 @@ public class Game
 		System.out.flush();
 	}
 
-	private int getInt(String varDescriptor, int threshold)
+	private int getInt(String varDescriptor, int min, int max)
 	{
 		int varToSet = 0;
 
-		while ((0 >= varToSet) || (threshold < varToSet))
+		do
 		{
 			try
 			{
@@ -75,7 +76,7 @@ public class Game
                 System.out.println("/!\\ not a positive integer");
                 scanner.next();
 			}
-		}
+		} while ((min > varToSet) || (max < varToSet));
 
 		return (varToSet);
 	}
@@ -129,6 +130,7 @@ public class Game
 			for (j=0; j<width; j++)
 			{
 				if (UNKNOWN_CELL == grid[i][j]) System.out.print(".");
+				else if (EMPTY_CELL == grid[i][j]) System.out.print(" ");
 				else if ((MINE_CELL == grid[i][j]) && (false==isTheEnd)) System.out.print(".");
 				else if ((MINE_CELL == grid[i][j]) && (true==isTheEnd)) System.out.print("X");
 				else System.out.print(grid[i][j]);
@@ -146,6 +148,35 @@ public class Game
 			displayGrid();
 			System.out.println("There was a mine at ["+x+","+y+"]...\nYou loose !");
 		}
+		else if (UNKNOWN_CELL == grid[x][y])
+		{
+			grid[x][y] = countNeighbors();
+		}
+	}
+
+	private int countNeighbors()
+	{
+		int neighbors = 0;
+
+		if (x>0)
+		{
+			System.out.println("a");
+			if (y>0 && MINE_CELL==grid[x-1][y-1]) neighbors++;
+			if (MINE_CELL==grid[x-1][y]) neighbors++;
+			if (y<width-1 && MINE_CELL==grid[x-1][y+1]) neighbors++;
+		}
+		System.out.println("b");
+		if (y>0 && MINE_CELL==grid[x][y-1]) neighbors++;
+		if (y<width-1 && MINE_CELL==grid[x][y+1]) neighbors++;
+		if (x<height-1)
+		{
+			System.out.println("c");
+			if (y>0 && MINE_CELL==grid[x+1][y-1]) neighbors++;
+			if (MINE_CELL==grid[x+1][y]) neighbors++;
+			if (y<width-1 && MINE_CELL==grid[x+1][y+1]) neighbors++;
+		}
+
+		return(neighbors);
 	}
 
 }
