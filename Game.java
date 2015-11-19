@@ -120,14 +120,14 @@ public class Game
 		//horizontal axis legend
 		System.out.print("  ");
 		for (j=0; j<width; j++) System.out.print(String.format("%3d", j));
-		System.out.print("\n   ");
-		for (j=0; j<3*width; j++) System.out.print("_");
+		System.out.print("\n    ");
+		for (j=0; j<3*width-1; j++) System.out.print("_");
 		System.out.print("\n");
 
 		//vertical axis legend + grid
 		for (i=0; i<height; i++)
 		{
-			System.out.print(i+" | ");
+			System.out.print(String.format("%2d",i)+" | ");
 			for (j=0; j<width; j++)
 			{
 				if (UNKNOWN_CELL == grid[i][j]) System.out.print(".");
